@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 public class My_DB {
 	private HashMap<String, Integer> db = new HashMap<String, Integer>();  // will store all committed data
+	private HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>(); // will store record of how many times each value is present
 	private Scanner in;
 
 	public static void main(String args[]) {
@@ -52,7 +53,17 @@ public class My_DB {
 				current.close();
 
 			} else if (line.contains("NUMEQUALTO")) {
-
+				Scanner current = new Scanner(line);
+				Integer number = null;
+				if (current.hasNext()) {
+					current.next();
+					if (current.hasNextInt()) {
+						number = current.nextInt();
+						success = database.numequalto(number);
+					}
+				}
+				if (success == false) System.out.println("INVALID INPUT");
+				current.close();
 
 			} else if (line.contains("END")) {
 				database.end();
@@ -73,11 +84,11 @@ public class My_DB {
 
 		}
 
-		// if rollback or commit commands are used here, print NO TRANSACTION
 	}
 
 	public boolean set(String name, Integer value) {
 		this.db.put(name, value);
+		this.putOrIncrement(value, this.counts);
 		return true;
 	}
 
@@ -87,18 +98,48 @@ public class My_DB {
 	}
 
 	public boolean unset(String name) {
+		Integer number = this.db.get(name);
 		this.db.remove(name);
+		this.removeOrDecrement(number, this.counts);
 		return true;
 
 	}
 
-	public void numequalto(Integer value) {
-
+	public boolean numequalto(Integer value) {
+		Integer answer = this.counts.get(value);
+		if (answer == null) {
+			System.out.println(0);
+		} else {
+			System.out.println(answer);
+		}
+		return true;
 	}
 
 	public void end() {
 		this.in.close();
 		System.exit(0);
+	}
+
+	// used to keep track of the count of a given value
+	// method used inside and outside of command blocks
+	public void removeOrDecrement(Integer number, HashMap<Integer, Integer> count) {
+		if (count.get(number) <=1 ) {
+			count.remove(number);
+		} else {
+			Integer currentValue = count.get(number);
+			count.put(number, currentValue-1);
+		}
+	}
+
+	// used to keep track of the count of a given value
+	// method used inside and outside of command blocks
+	public void putOrIncrement(Integer number, HashMap<Integer, Integer> count) {
+		if (!count.containsKey(number)) {
+			count.put(number, 1);
+		} else {
+			Integer currentValue = count.get(number);
+			count.put(number,  currentValue+1);
+		}
 	}
 
 	public boolean begin(HashMap<String, Integer> parent, HashSet<String> parentUnsets) {
