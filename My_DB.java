@@ -70,24 +70,25 @@ public class My_DB {
 			} else { // occurs if user inputs a blank command
 				database.invalid();
 			}
-
-
 			current.close();
 		}
 
 	}
 
+	// carries out the SET command
 	public boolean set(String name, Integer value) {
 		this.db.put(name, value);
 		this.putOrIncrement(value, this.counts);
 		return true;
 	}
 
+	// carries out the GET command
 	public boolean get(String name) {
 		System.out.println(this.db.get(name));
 		return true;
 	}
 
+	// carries out the UNSET command
 	public boolean unset(String name) {
 		Integer number = this.db.get(name);
 		this.db.remove(name);
@@ -96,6 +97,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out the NUMEQUALTO command
 	public boolean numequalto(Integer value) {
 		Integer answer = this.counts.get(value);
 		if (answer == null) {
@@ -106,6 +108,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out the END command
 	public void end() {
 		this.in.close();
 		System.exit(0);
@@ -113,6 +116,7 @@ public class My_DB {
 
 	// used to keep track of the count of a given value
 	public void removeOrDecrement(Integer number, HashMap<Integer, Integer> counts) {
+		// while not in a transaction block, a value's count can never get below 1
 		if (counts.get(number) <=1 ) {
 			counts.remove(number);
 		} else {
@@ -137,6 +141,7 @@ public class My_DB {
 		System.out.println("INVALID INPUT");
 	}
 
+	// carries out the BEGIN command, and is used recursively for any nested transaction blocks
 	public boolean begin(HashMap<String, Integer> parent, HashSet<String> parentUnsets, HashMap<Integer, Integer> parentCounts) {
 		boolean exit = false;
 		HashMap<String, Integer> block = new HashMap<String, Integer>(parent);
@@ -154,6 +159,7 @@ public class My_DB {
 			if (current.hasNext()) {
 				command = current.next();
 
+				// using conditionals to select command, as in main method
 				if (command.contains("UNSET")) {
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
@@ -186,7 +192,7 @@ public class My_DB {
 					exit = this.commit(block, blockUnsets, blockCounts);
 
 				} else if (command.contains("ROLLBACK")) {
-					// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
+					// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue to be manipulated
 					current.close();
 					return false;
 
@@ -197,8 +203,6 @@ public class My_DB {
 			} else {
 				this.invalid();
 			}
-
-
 			current.close();
 		}
 
@@ -207,9 +211,9 @@ public class My_DB {
 
 	}
 
+	// below are methods that are used from within transaction blocks
 
-
-	// below are methods that will be used from within transaction blocks
+	// carries out SET command inside transaction blocks
 	public boolean set(String name, Integer value, HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
 		block.put(name,  value);
 		if (blockUnsets.contains(name)) blockUnsets.remove(name); // this undoes a previous UNSET of this name from within an uncommitted block
@@ -217,6 +221,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out GET command inside transaction blocks
 	public boolean get(String name, HashMap<String, Integer> block, HashSet<String> blockUnsets) {
 		if (block.containsKey(name)) {
 			System.out.println(block.get(name));
@@ -228,6 +233,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out UNSET command inside transaction blocks
 	public boolean unset(String name, HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
 		// reduce the count of the value associated with the key
 		Integer number = block.get(name);
@@ -241,6 +247,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out NUMEQUALTO command inside transaction blocks
 	public boolean numequalto(Integer value, HashMap<String, Integer> block, HashMap<Integer, Integer> blockCounts) {
 		Integer answerDB = this.counts.get(value);
 		Integer answerBlock = blockCounts.get(value);
@@ -257,6 +264,7 @@ public class My_DB {
 		return true;
 	}
 
+	// carries out COMMIT command inside transaction blocks
 	public boolean commit(HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
 		// to COMMIT this block's data, we SET all the items in block to db and UNSET all the names in blockUnsets
 		Iterator<Entry<String, Integer>> updateSets = block.entrySet().iterator();
@@ -275,8 +283,9 @@ public class My_DB {
 		return true;
 	}
 
-	// used to keep track of the count of a given value within a block
+	// used to keep track of the count of a given value within a transaction block
 	public void removeOrDecrementBlock(Integer number, HashMap<Integer, Integer> counts) {
+		// inside a transaction block, we can have negative count values because we may have removed values that had been set in a parent block
 		if (!counts.containsKey(number)) {
 			counts.put(number, -1);
 		} else {
