@@ -139,11 +139,6 @@ public class My_DB {
 				}
 				if (success == false) System.out.println("INVALID INPUT");
 				current.close();
-//				Scanner current = new Scanner(line);
-//				current.next();
-//				String name = current.next();
-//				database.get(name);
-//				current.close();
 
 			} else if (line.contains("NUMEQUALTO")) {
 
@@ -158,9 +153,9 @@ public class My_DB {
 				exit = this.commit(block);
 
 			} else if (line.contains("ROLLBACK")) {
-				// to ROLLBACK, we simply exit this method without committing
-				exit = true;
-
+				// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
+				return false;
+				
 			} else {
 				System.out.println("INVALID INPUT");
 			}
@@ -170,20 +165,6 @@ public class My_DB {
 		return true;
 
 	}
-
-//	public boolean beginNested(HashMap<String, Integer> parentBlock) {
-//		boolean exit = false;
-//		HashMap<String, Integer> block = new HashMap<String, Integer>(parentBlock);
-//
-//		while (exit == false) {
-//
-//		// if COMMIT command is used, we save this block's "block" HashMap to the "db" HashMap
-//		// since this "block" HashMap includes the data from all parent blocks, there is no need to commit parent blocks separately
-//
-//		}
-//		// return true, which will allow the beginNested() and begin() methods to exit
-//		return true;
-//	}
 
 
 
