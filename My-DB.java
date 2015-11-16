@@ -1,5 +1,8 @@
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 public class My_DB {
@@ -55,8 +58,9 @@ public class My_DB {
 				database.end();
 
 			} else if (line.contains("BEGIN")) {
-				HashSet<String> unsets = new HashSet<String>();  // this initializes a blank HashSet that will keep track of UNSET commands within the block
-				database.begin(database.db, unsets);
+				HashMap<String, Integer> block = new HashMap<String, Integer>();  // initializing blank HashMap that will store new/updated values within block
+				HashSet<String> unsets = new HashSet<String>();  // initializing a blank HashSet that will keep track of UNSET commands within block
+				database.begin(block, unsets);
 
 			} else if (line.contains("ROLLBACK") || line.contains("COMMIT")) {
 				// ROLLBACK and COMMIT have no effect when called here, outside of a transaction block
@@ -150,12 +154,12 @@ public class My_DB {
 				exit = this.begin(block, blockUnsets);
 
 			} else if (line.contains("COMMIT")) {
-				exit = this.commit(block);
+				exit = this.commit(block, blockUnsets);
 
 			} else if (line.contains("ROLLBACK")) {
 				// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
 				return false;
-				
+
 			} else {
 				System.out.println("INVALID INPUT");
 			}
@@ -196,9 +200,20 @@ public class My_DB {
 
 	}
 
-	public boolean commit(HashMap<String, Integer> block) {
-		// to COMMIT this block's data, we replace "db" with the new version of the HashMap, which is "block"
-		this.db = block;
+	public boolean commit(HashMap<String, Integer> block, HashSet<String> blockUnsets) {
+		// to COMMIT this block's data, we SET all the items in block to db and UNSET all the names in blockUnsets
+		Iterator<Entry<String, Integer>> updateSets = block.entrySet().iterator();
+		Iterator<String> updateUnsets = blockUnsets.iterator();
+
+		while (updateSets.hasNext()) {
+			Map.Entry<String, Integer> current = (Map.Entry<String, Integer>)updateSets.next();
+			this.set(current.getKey(), current.getValue());
+		}
+
+		while (updateUnsets.hasNext()) {
+			this.unset(updateUnsets.next());
+		}
+
 		return true;
 	}
 
