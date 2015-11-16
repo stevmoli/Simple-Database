@@ -121,16 +121,6 @@ public class My_DB {
 		System.exit(0);
 	}
 
-//	public boolean commitSet(String name, Integer value) {
-//		this.db.put(name, value);
-//		return true;
-//	}
-
-	public boolean commitUnset(String name) {
-		this.db.remove(name);
-		return true;
-	}
-
 	// used to keep track of the count of a given value
 	public void removeOrDecrement(Integer number, HashMap<Integer, Integer> counts) {
 		if (counts.get(number) <=1 ) {
@@ -260,8 +250,6 @@ public class My_DB {
 		if (number == null) return false; // if we are trying to UNSET a string that is not set in either the db HashMap or the block HashMap
 		this.removeOrDecrementBlock(number, blockCounts);
 
-		System.out.println(blockCounts.get(number) + " "+number); // TODO remove this test statement
-
 		// remove the value within the block, and mark it as a name that's been UNSET
 		block.remove(name);
 		blockUnsets.add(name); // this allows us to keep track of this UNSET before it is committed
@@ -271,7 +259,7 @@ public class My_DB {
 	public boolean numequalto(Integer value, HashMap<String, Integer> block, HashMap<Integer, Integer> blockCounts) {
 		Integer answerDB = this.counts.get(value);
 		Integer answerBlock = blockCounts.get(value);
-		System.out.println(answerDB+" "+answerBlock);  // TODO remove this test statement
+
 		if (answerDB == null && answerBlock == null) {
 			System.out.println(0);
 		} else if (answerDB == null) {
@@ -287,21 +275,16 @@ public class My_DB {
 	public boolean commit(HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
 		// to COMMIT this block's data, we SET all the items in block to db and UNSET all the names in blockUnsets
 		Iterator<Entry<String, Integer>> updateSets = block.entrySet().iterator();
-		Iterator<String> updateUnsets = blockUnsets.iterator();  //TODO keep this?
+		Iterator<String> updateUnsets = blockUnsets.iterator();
 
 		while (updateSets.hasNext()) {
 			Map.Entry<String, Integer> current = (Map.Entry<String, Integer>)updateSets.next();
 			this.set(current.getKey(), current.getValue());  // updates the db HashMap with the new/changed entries
-
-//			Integer currentNewCount = this.counts.get(current.getValue()) + blockCounts.get(current.getValue());
-//			this.counts.put(current.getValue(), currentNewCount);
 		}
 
 		while (updateUnsets.hasNext()) {
 			String currentUnset = updateUnsets.next();
-			Integer currentUnsetNumber = this.db.get(currentUnset);
-			this.removeOrDecrementBlock(currentUnsetNumber, this.counts); // updates the count of this number
-			this.commitUnset(currentUnset); // runs the UNSET command on this string in the db HashMap, making the block's change permanent
+			this.unset(currentUnset); // runs the UNSET command on this string in the db HashMap, making the block's change permanent
 		}
 
 		return true;
@@ -316,6 +299,5 @@ public class My_DB {
 			counts.put(number, currentValue-1);
 		}
 	}
-
 
 }
