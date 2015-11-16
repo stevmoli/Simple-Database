@@ -12,11 +12,11 @@ import java.util.Scanner;
 *  		javac My_DB.java
 *  from within the directory the java file is in.
 *
-*	The program is then started with the command:
-*		java My_DB
+*	 The program is then started with the command:
+*			java My_DB
 *
-*	You also have the ability to use a .txt file as input with this command:
-*		java My_DB < /path/to/file.txt
+*	 You also have the ability to use a .txt file as input with this command:
+*			java My_DB < /path/to/file.txt
 *
 */
 public class My_DB {
