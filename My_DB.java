@@ -30,24 +30,24 @@ public class My_DB {
 				if (command.contains("UNSET")) {
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = database.unset(name);
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) database.invalid();
 
 				} else if (command.contains("SET")) {
 					if (current.hasNext()) name = current.next();
 					if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) database.invalid();
 
 				} else if (command.contains("GET")) {
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = database.get(name);
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) database.invalid();
 
 				} else if (command.contains("NUMEQUALTO")) {
 					if (current.hasNextInt()) {
 						number = current.nextInt();
 						success = database.numequalto(number);
 					}
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) database.invalid();
 
 				} else if (command.contains("END")) {
 					database.end();
@@ -63,12 +63,12 @@ public class My_DB {
 					System.out.println("NO TRANSACTION");
 
 				} else {
-					System.out.println("INVALID INPUT");
+					database.invalid();
 
 				}
 
 			} else { // occurs if user inputs a blank command
-				System.out.println("INVALID INPUT");
+				database.invalid();
 			}
 
 
@@ -132,6 +132,11 @@ public class My_DB {
 		}
 	}
 
+	// notifies user of invalid input
+	public void invalid() {
+		System.out.println("INVALID INPUT");
+	}
+
 	public boolean begin(HashMap<String, Integer> parent, HashSet<String> parentUnsets, HashMap<Integer, Integer> parentCounts) {
 		boolean exit = false;
 		HashMap<String, Integer> block = new HashMap<String, Integer>(parent);
@@ -152,24 +157,24 @@ public class My_DB {
 				if (command.contains("UNSET")) {
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) this.invalid();
 
 				} else if (command.contains("SET")) {
 					if (current.hasNext()) name = current.next();
 					if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) this.invalid();
 
 				} else if (command.contains("GET")) {
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) this.invalid();
 
 				} else if (command.contains("NUMEQUALTO")) {
 					if (current.hasNextInt()) {
 						number = current.nextInt();
 						success = this.numequalto(number, block, blockCounts);
 					}
-					if (success == false) System.out.println("INVALID INPUT");
+					if (success == false) this.invalid();
 
 				} else if (command.contains("END")) {
 					this.end();
@@ -186,11 +191,11 @@ public class My_DB {
 					return false;
 
 				} else {
-					System.out.println("INVALID INPUT");
+					this.invalid();
 				}
 
 			} else {
-				System.out.println("INVALID INPUT");
+				this.invalid();
 			}
 
 
