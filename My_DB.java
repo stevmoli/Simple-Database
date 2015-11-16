@@ -17,44 +17,35 @@ public class My_DB {
 		while (true) {
 			String line = database.in.nextLine();
 			boolean success = false;
+			Scanner current = new Scanner(line);
+			String name = null;
+			Integer number = null;
 
 			if (line.contains("UNSET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = database.unset(name);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("SET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
-
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("GET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = database.get(name);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("NUMEQUALTO")) {
-				Scanner current = new Scanner(line);
-				Integer number = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNextInt()) {
@@ -63,7 +54,6 @@ public class My_DB {
 					}
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("END")) {
 				database.end();
@@ -82,7 +72,7 @@ public class My_DB {
 				System.out.println("INVALID INPUT");
 
 			}
-
+			current.close();
 		}
 
 	}
@@ -151,44 +141,35 @@ public class My_DB {
 		while (exit == false) {
 			String line = this.in.nextLine();
 			boolean success = false;
+			Scanner current = new Scanner(line);
+			String name = null;
+			Integer number = null;
 
 			if (line.contains("UNSET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("SET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
-
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("GET")) {
-				Scanner current = new Scanner(line);
-				String name = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNext()) name = current.next();
 					if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("NUMEQUALTO")) {
-				Scanner current = new Scanner(line);
-				Integer number = null;
 				if (current.hasNext()) {
 					current.next();
 					if (current.hasNextInt()) {
@@ -197,7 +178,6 @@ public class My_DB {
 					}
 				}
 				if (success == false) System.out.println("INVALID INPUT");
-				current.close();
 
 			} else if (line.contains("END")) {
 				this.end();
@@ -210,11 +190,13 @@ public class My_DB {
 
 			} else if (line.contains("ROLLBACK")) {
 				// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
+				current.close();
 				return false;
 
 			} else {
 				System.out.println("INVALID INPUT");
 			}
+			current.close();
 		}
 
 		// returning true will cause any begin() methods to exit
