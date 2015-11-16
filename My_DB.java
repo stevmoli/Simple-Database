@@ -25,48 +25,53 @@ public class My_DB {
 
 			if (current.hasNext()) {
 				command = current.next();
-			}
 
-			// these conditionals allow us to run the current command
-			if (command.contains("UNSET")) {
-				if (current.hasNext()) name = current.next();
-				if (String.class.isInstance(name)) success = database.unset(name);
-				if (success == false) System.out.println("INVALID INPUT");
+				// these conditionals allow us to run the current command
+				if (command.contains("UNSET")) {
+					if (current.hasNext()) name = current.next();
+					if (String.class.isInstance(name)) success = database.unset(name);
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("SET")) {
-				if (current.hasNext()) name = current.next();
-				if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
-				if (success == false) System.out.println("INVALID INPUT");
+				} else if (command.contains("SET")) {
+					if (current.hasNext()) name = current.next();
+					if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("GET")) {
-				if (current.hasNext()) name = current.next();
-				if (String.class.isInstance(name)) success = database.get(name);
-				if (success == false) System.out.println("INVALID INPUT");
+				} else if (command.contains("GET")) {
+					if (current.hasNext()) name = current.next();
+					if (String.class.isInstance(name)) success = database.get(name);
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("NUMEQUALTO")) {
-				if (current.hasNextInt()) {
-					number = current.nextInt();
-					success = database.numequalto(number);
+				} else if (command.contains("NUMEQUALTO")) {
+					if (current.hasNextInt()) {
+						number = current.nextInt();
+						success = database.numequalto(number);
+					}
+					if (success == false) System.out.println("INVALID INPUT");
+
+				} else if (command.contains("END")) {
+					database.end();
+
+				} else if (command.contains("BEGIN")) {
+					HashMap<String, Integer> block = new HashMap<String, Integer>(); // initializing blank HashMap that will store new/updated values within the block
+					HashSet<String> unsets = new HashSet<String>(); // initializing a blank HashSet that will keep track of UNSET commands within the block
+					HashMap<Integer, Integer> count = new HashMap<Integer, Integer>(); // initializing a blank HashMap to keep track of how many times each value is present within the block
+					database.begin(block, unsets, count);
+
+				} else if (command.contains("ROLLBACK") || line.contains("COMMIT")) {
+					// ROLLBACK and COMMIT have no effect when called here, outside of a transaction block
+					System.out.println("NO TRANSACTION");
+
+				} else {
+					System.out.println("INVALID INPUT");
+
 				}
-				if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("END")) {
-				database.end();
-
-			} else if (command.contains("BEGIN")) {
-				HashMap<String, Integer> block = new HashMap<String, Integer>(); // initializing blank HashMap that will store new/updated values within the block
-				HashSet<String> unsets = new HashSet<String>(); // initializing a blank HashSet that will keep track of UNSET commands within the block
-				HashMap<Integer, Integer> count = new HashMap<Integer, Integer>(); // initializing a blank HashMap to keep track of how many times each value is present within the block
-				database.begin(block, unsets, count);
-
-			} else if (command.contains("ROLLBACK") || line.contains("COMMIT")) {
-				// ROLLBACK and COMMIT have no effect when called here, outside of a transaction block
-				System.out.println("NO TRANSACTION");
-
-			} else {
+			} else { // occurs if user inputs a blank command
 				System.out.println("INVALID INPUT");
-
 			}
+
+
 			current.close();
 		}
 
@@ -143,47 +148,52 @@ public class My_DB {
 
 			if (current.hasNext()) {
 				command = current.next();
-			}
 
-			if (command.contains("UNSET")) {
-				if (current.hasNext()) name = current.next();
-				if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
-				if (success == false) System.out.println("INVALID INPUT");
+				if (command.contains("UNSET")) {
+					if (current.hasNext()) name = current.next();
+					if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("SET")) {
-				if (current.hasNext()) name = current.next();
-				if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
-				if (success == false) System.out.println("INVALID INPUT");
+				} else if (command.contains("SET")) {
+					if (current.hasNext()) name = current.next();
+					if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("GET")) {
-				if (current.hasNext()) name = current.next();
-				if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
-				if (success == false) System.out.println("INVALID INPUT");
+				} else if (command.contains("GET")) {
+					if (current.hasNext()) name = current.next();
+					if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
+					if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (command.contains("NUMEQUALTO")) {
-				if (current.hasNextInt()) {
-					number = current.nextInt();
-					success = this.numequalto(number, block, blockCounts);
+				} else if (command.contains("NUMEQUALTO")) {
+					if (current.hasNextInt()) {
+						number = current.nextInt();
+						success = this.numequalto(number, block, blockCounts);
+					}
+					if (success == false) System.out.println("INVALID INPUT");
+
+				} else if (command.contains("END")) {
+					this.end();
+
+				} else if (command.contains("BEGIN")) {
+					exit = this.begin(block, blockUnsets, blockCounts);
+
+				} else if (command.contains("COMMIT")) {
+					exit = this.commit(block, blockUnsets, blockCounts);
+
+				} else if (command.contains("ROLLBACK")) {
+					// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
+					current.close();
+					return false;
+
+				} else {
+					System.out.println("INVALID INPUT");
 				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (command.contains("END")) {
-				this.end();
-
-			} else if (command.contains("BEGIN")) {
-				exit = this.begin(block, blockUnsets, blockCounts);
-
-			} else if (command.contains("COMMIT")) {
-				exit = this.commit(block, blockUnsets, blockCounts);
-
-			} else if (command.contains("ROLLBACK")) {
-				// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
-				current.close();
-				return false;
 
 			} else {
 				System.out.println("INVALID INPUT");
 			}
+
+
 			current.close();
 		}
 
