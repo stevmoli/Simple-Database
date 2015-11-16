@@ -14,57 +14,52 @@ public class My_DB {
 		My_DB database = new My_DB();
 		database.in = new Scanner(System.in);
 
+		// this while loop will run until the END command stops the program
 		while (true) {
-			String line = database.in.nextLine();
+			String line = database.in.nextLine(); // will hold the entire current command
 			boolean success = false;
 			Scanner current = new Scanner(line);
-			String name = null;
-			Integer number = null;
+			String command = null; // will hold the name of the current command
+			String name = null; // will hold the name parameter of the current command
+			Integer number = null; // will hold the value parameter of the current command
 
-			if (line.contains("UNSET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (String.class.isInstance(name)) success = database.unset(name);
+			if (current.hasNext()) {
+				command = current.next();
+			}
+
+			// these conditionals allow us to run the current command
+			if (command.contains("UNSET")) {
+				if (current.hasNext()) name = current.next();
+				if (String.class.isInstance(name)) success = database.unset(name);
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("SET")) {
+				if (current.hasNext()) name = current.next();
+				if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("GET")) {
+				if (current.hasNext()) name = current.next();
+				if (String.class.isInstance(name)) success = database.get(name);
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("NUMEQUALTO")) {
+				if (current.hasNextInt()) {
+					number = current.nextInt();
+					success = database.numequalto(number);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (line.contains("SET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (current.hasNextInt() && String.class.isInstance(name)) success = database.set(name, current.nextInt());
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("GET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (String.class.isInstance(name)) success = database.get(name);
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("NUMEQUALTO")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNextInt()) {
-						number = current.nextInt();
-						success = database.numequalto(number);
-					}
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("END")) {
+			} else if (command.contains("END")) {
 				database.end();
 
-			} else if (line.contains("BEGIN")) {
+			} else if (command.contains("BEGIN")) {
 				HashMap<String, Integer> block = new HashMap<String, Integer>(); // initializing blank HashMap that will store new/updated values within the block
 				HashSet<String> unsets = new HashSet<String>(); // initializing a blank HashSet that will keep track of UNSET commands within the block
 				HashMap<Integer, Integer> count = new HashMap<Integer, Integer>(); // initializing a blank HashMap to keep track of how many times each value is present within the block
 				database.begin(block, unsets, count);
 
-			} else if (line.contains("ROLLBACK") || line.contains("COMMIT")) {
+			} else if (command.contains("ROLLBACK") || line.contains("COMMIT")) {
 				// ROLLBACK and COMMIT have no effect when called here, outside of a transaction block
 				System.out.println("NO TRANSACTION");
 
@@ -142,53 +137,46 @@ public class My_DB {
 			String line = this.in.nextLine();
 			boolean success = false;
 			Scanner current = new Scanner(line);
+			String command = null;
 			String name = null;
 			Integer number = null;
 
-			if (line.contains("UNSET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
+			if (current.hasNext()) {
+				command = current.next();
+			}
+
+			if (command.contains("UNSET")) {
+				if (current.hasNext()) name = current.next();
+				if (String.class.isInstance(name)) success = this.unset(name, block, blockUnsets, blockCounts);
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("SET")) {
+				if (current.hasNext()) name = current.next();
+				if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("GET")) {
+				if (current.hasNext()) name = current.next();
+				if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
+				if (success == false) System.out.println("INVALID INPUT");
+
+			} else if (command.contains("NUMEQUALTO")) {
+				if (current.hasNextInt()) {
+					number = current.nextInt();
+					success = this.numequalto(number, block, blockCounts);
 				}
 				if (success == false) System.out.println("INVALID INPUT");
 
-			} else if (line.contains("SET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (current.hasNextInt() && String.class.isInstance(name)) success = this.set(name, current.nextInt(), block, blockUnsets, blockCounts);
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("GET")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNext()) name = current.next();
-					if (String.class.isInstance(name)) success = this.get(name, block, blockUnsets);
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("NUMEQUALTO")) {
-				if (current.hasNext()) {
-					current.next();
-					if (current.hasNextInt()) {
-						number = current.nextInt();
-						success = this.numequalto(number, block, blockCounts);
-					}
-				}
-				if (success == false) System.out.println("INVALID INPUT");
-
-			} else if (line.contains("END")) {
+			} else if (command.contains("END")) {
 				this.end();
 
-			} else if (line.contains("BEGIN")) {
+			} else if (command.contains("BEGIN")) {
 				exit = this.begin(block, blockUnsets, blockCounts);
 
-			} else if (line.contains("COMMIT")) {
+			} else if (command.contains("COMMIT")) {
 				exit = this.commit(block, blockUnsets, blockCounts);
 
-			} else if (line.contains("ROLLBACK")) {
+			} else if (command.contains("ROLLBACK")) {
 				// to ROLLBACK, we simply return false, negating any changes in this block but allowing parent blocks to continue
 				current.close();
 				return false;
