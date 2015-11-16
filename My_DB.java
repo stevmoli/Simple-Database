@@ -5,6 +5,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+/*
+*  By Steven Molitor
+*
+*  To compile this code, use the terminal command:
+*  		javac My_DB.java
+*  from within the directory the java file is in.
+*
+*	The program is then started with the command:
+*		java My_DB
+*
+*	You also have the ability to use a .txt file as input with this command:
+*		java My_DB < /path/to/file.txt
+*
+*/
 public class My_DB {
 	private HashMap<String, Integer> db = new HashMap<String, Integer>();  // will store all committed data
 	private HashMap<Integer, Integer> counts = new HashMap<Integer, Integer>(); // will store record of how many times each value is present
