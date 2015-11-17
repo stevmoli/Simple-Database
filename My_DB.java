@@ -9,7 +9,7 @@ import java.util.Scanner;
 *  By Steven Molitor
 *
 *  To compile this code, use the terminal command:
-*  		javac My_DB.java
+*  	javac My_DB.java
 *  from within the directory the java file is in.
 *
 *  The program is then started with the command:
@@ -31,7 +31,7 @@ public class My_DB {
 		// this while loop will run until the END command stops the program
 		while (true) {
 			String line = database.in.nextLine(); // will hold the entire current command
-			boolean success = false;
+			boolean success = false; // will be used to check if a valid command was run or not
 			Scanner current = new Scanner(line);
 			String command = null; // will hold the name of the current command
 			String name = null; // will hold the name parameter of the current command
