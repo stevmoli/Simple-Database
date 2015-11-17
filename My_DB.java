@@ -91,6 +91,12 @@ public class My_DB {
 
 	// carries out the SET command
 	public boolean set(String name, Integer value) {
+		// if this name already had a previous value, we must decrement the count of the old value
+		if (this.db.containsKey(name)) {
+			Integer number = this.db.get(name);
+			this.removeOrDecrement(number, this.counts);
+		}
+
 		this.db.put(name, value);
 		this.putOrIncrement(value, this.counts);
 		return true;
@@ -229,6 +235,12 @@ public class My_DB {
 
 	// carries out SET command inside transaction blocks
 	public boolean set(String name, Integer value, HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
+		// if this name already had a previous value, we must decrement the count of the old value
+		if (block.containsKey(name)) {
+			Integer number = block.get(name);
+			this.removeOrDecrementBlock(number, blockCounts);
+		}
+
 		block.put(name,  value);
 		if (blockUnsets.contains(name)) blockUnsets.remove(name); // this undoes a previous UNSET of this name from within an uncommitted block
 		this.putOrIncrement(value, blockCounts);
@@ -249,6 +261,10 @@ public class My_DB {
 
 	// carries out UNSET command inside transaction blocks
 	public boolean unset(String name, HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
+		// if we've already UNSET this name in this transaction block, there is no need to do it again
+		// the UNSET command is still valid in this case, so we return true, but since there is nothing to unset, the rest of this method is not run
+		if (blockUnsets.contains(name)) return true;
+
 		// reduce the count of the value associated with the key
 		Integer number = block.get(name);
 		if (number == null) number = this.db.get(name); // if we are using UNSET on a string that was SET outside of this transaction block or its parent transaction blocks
