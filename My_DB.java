@@ -236,8 +236,11 @@ public class My_DB {
 	// carries out SET command inside transaction blocks
 	public boolean set(String name, Integer value, HashMap<String, Integer> block, HashSet<String> blockUnsets, HashMap<Integer, Integer> blockCounts) {
 		// if this name already had a previous value, we must decrement the count of the old value
-		if (block.containsKey(name)) {
+		if (block.containsKey(name)) {  // if this previous value was added in an uncommitted block
 			Integer number = block.get(name);
+			this.removeOrDecrementBlock(number, blockCounts);
+		} else if (this.db.containsKey(name)) {   // if this previous value was committed to the "db" HashMap
+			Integer number = this.db.get(name);
 			this.removeOrDecrementBlock(number, blockCounts);
 		}
 
